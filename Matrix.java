@@ -3,24 +3,49 @@ package lab1_matrix_multiplication;
 import java.util.Random;
 
 public class Matrix {
-	public int numberOfRows=2, numberOfColumns=2, MAX=100, MIN=0;
 	
-	public int dataContainer[][];
+	//define variables used
+	public int numberOfRows=2, numberOfColumns=2, MAX=100, MIN=0, dataContainer[][];
 	
+	//main thread starts here
+		public static void main(String[] args){
+			Matrix doubleObj = new Matrix(2,2);
+			Matrix doubleObj2 = new Matrix(2,2);
+			
+			doubleObj.printResults();
+			System.out.println("\n");
+			
+			
+			doubleObj2.printResults();
+			System.out.println("\n");
+			
+			Matrix mulOld = doubleObj.multiply_Old(doubleObj2);
+			mulOld.printResults();
+			
+			Matrix doubleObj3 = new Matrix(2,2);
+			doubleObj3 = doubleObj3.multiply_Strassen(doubleObj.dataContainer, doubleObj2.dataContainer);
+			doubleObj3.printResults();
+			
+		}
+	//default constructor
 	public Matrix(){		
 		dataContainer = new int[numberOfRows][numberOfColumns];	
 	}
 	
+	//single argument constructor
 	public Matrix(int[][] someArray){		
 		dataContainer = someArray;	
 	}
 	
+	//double argument constructor
 	public Matrix(int r, int c){
 		numberOfRows = r;
 		numberOfColumns = c;
 		
 		dataContainer = new int[numberOfRows][numberOfColumns];
 
+		
+		//fill the array with rabdom numbers
 		for(int i=0; i<numberOfRows; i++){
 			for(int j=0; j<numberOfColumns; j++){
 				dataContainer[i][j] = randomNum();
@@ -28,6 +53,8 @@ public class Matrix {
 		}	
 	}
 	
+	
+	//fill the array with zeros
 	public void zeroInitialize(){
 		dataContainer = new int[numberOfRows][numberOfColumns];
 
@@ -38,7 +65,9 @@ public class Matrix {
 		}
 	}
 	
-	private int randomNum(){
+	
+	//generate the random numbers
+	public int randomNum(){
 		Random rand = new Random();
 		int randomNum = rand.nextInt((MAX-MIN)+1)+ MIN;
 		return randomNum;
@@ -60,13 +89,13 @@ public class Matrix {
 		return result;
 	}
 	
-	public Matrix multiply_Strassen(int[][] A, int[][] B)
+	public Matrix multiply_Strassen(int[][] doubleObj, int[][] doubleObj2)
     {        
-        int n = A.length;
+        int n = doubleObj.length;
         int[][] R = new int[n][n];
         
         if (n == 1)
-            R[0][0] = A[0][0] * B[0][0];
+            R[0][0] = doubleObj[0][0] * doubleObj2[0][0];
         else
         {
             int[][] A11 = new int[n/2][n/2];
@@ -78,16 +107,18 @@ public class Matrix {
             int[][] B21 = new int[n/2][n/2];
             int[][] B22 = new int[n/2][n/2];
  
-            /** Dividing matrix A into 4 halves **/
-            split(A, A11, 0 , 0);
-            split(A, A12, 0 , n/2);
-            split(A, A21, n/2, 0);
-            split(A, A22, n/2, n/2);
-            /** Dividing matrix B into 4 halves **/
-            split(B, B11, 0 , 0);
-            split(B, B12, 0 , n/2);
-            split(B, B21, n/2, 0);
-            split(B, B22, n/2, n/2);
+            /** Dividing matrix doubleObj into 4 halves **/
+            split(doubleObj, A11, 0 , 0);
+            split(doubleObj, A12, 0 , n/2);
+            split(doubleObj, A21, n/2, 0);
+            split(doubleObj, A22, n/2, n/2);
+            
+            
+            /** Dividing matrix doubleObj2 into 4 halves **/
+            split(doubleObj2, B11, 0 , 0);
+            split(doubleObj2, B12, 0 , n/2);
+            split(doubleObj2, B21, n/2, 0);
+            split(doubleObj2, B22, n/2, n/2);
  
             int [][] M1 = multiply_Strassen(add(A11, A22), add(B11, B22)).dataContainer;
             int [][] M2 = multiply_Strassen(add(A21, A22), B11).dataContainer;
@@ -112,71 +143,53 @@ public class Matrix {
         return result;
     }
 
-    public int[][] sub(int[][] A, int[][] B)
+    public int[][] sub(int[][] doubleObj, int[][] doubleObj2)
     {
-        int n = A.length;
-        int[][] C = new int[n][n];
+        int n = doubleObj.length;
+        int[][] mulOld = new int[n][n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                C[i][j] = A[i][j] - B[i][j];
-        return C;
+                mulOld[i][j] = doubleObj[i][j] - doubleObj2[i][j];
+        return mulOld;
     }
 
-    public int[][] add(int[][] A, int[][] B)
+    public int[][] add(int[][] doubleObj, int[][] doubleObj2)
     {
-        int n = A.length;
-        int[][] C = new int[n][n];
+        int n = doubleObj.length;
+        int[][] mulOld = new int[n][n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-                C[i][j] = A[i][j] + B[i][j];
-        return C;
+                mulOld[i][j] = doubleObj[i][j] + doubleObj2[i][j];
+        return mulOld;
     }
    
-    public void split(int[][] P, int[][] C, int iB, int jB) 
+    public void split(int[][] P, int[][] mulOld, int iB, int jB) 
     {
-        for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
-            for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
-                C[i1][j1] = P[i2][j2];
+        for(int i1 = 0, i2 = iB; i1 < mulOld.length; i1++, i2++)
+            for(int j1 = 0, j2 = jB; j1 < mulOld.length; j1++, j2++)
+                mulOld[i1][j1] = P[i2][j2];
     }
     
-    public void join(int[][] C, int[][] P, int iB, int jB) 
+    public void join(int[][] mulOld, int[][] P, int iB, int jB) 
     {
-        for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
-            for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
-                P[i2][j2] = C[i1][j1];
+        for(int i1 = 0, i2 = iB; i1 < mulOld.length; i1++, i2++)
+            for(int j1 = 0, j2 = jB; j1 < mulOld.length; j1++, j2++)
+                P[i2][j2] = mulOld[i1][j1];
     } 
    
 	
-	public void print(){
+    
+    //now print the results on screen
+	public void printResults(){
 		System.out.println("[");
 		for(int i=0; i<numberOfRows; i++){
 			for(int j=0; j<numberOfColumns; j++){
 				System.out.print(dataContainer[i][j] + " ");
 			}
-			System.out.print("\n");
+			System.out.println("\n");
 		}
-		System.out.print("]");
+		System.out.println("]");
 	}
 	
-	
-	//main thread starts here
-	public static void main(String[] args){
-		Matrix A = new Matrix(2,2);
-		Matrix B = new Matrix(2,2);
-		
-		A.print();
-		System.out.println("\n");
-		B.print();
-		System.out.println("\n");
-		
-		Matrix C = A.multiply_Old(B);
-		C.print();
-		
-		Matrix D = new Matrix(2,2);
-		D = D.multiply_Strassen(A.dataContainer, B.dataContainer);
-		D.print();
-		
-		
-	}
 }//END
 
